@@ -1,0 +1,11 @@
+@url_dev = http://localhost:3000//v1/api/access
+
+### sign up
+POST {{url_dev}}user/signup
+Content-Type: application/json
+{
+    "usr_username": "jilee",
+    "usr_fullname": "Le Quynh Chi",
+    "usr_password": "jilee",
+    "usr_avatar": "jilee.png"
+}

@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "80:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=${MONGODB_URI}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
+      - AWS_BUCKET_SECRET_KEY=${AWS_BUCKET_SECRET_KEY}
+      - AWS_BUCKET_CLOUDFRONT_URL=${AWS_BUCKET_CLOUDFRONT_URL}
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=Manage
+      - MONGO_INITDB_ROOT_USERNAME=jilee
+      - MONGO_INITDB_ROOT_PASSWORD=jilee
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # Elasticsearch Service
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+volumes:
+  mongodb_data:
+  elasticsearch_data:
