@@ -16,14 +16,21 @@ class ElasticsearchManager {
         return this.instance;
     }
 
-    public async connect(host: string = 'http://localhost:9200'): Promise<Client> {
+    public async connect(host: string = 'http://elasticsearch:9200'): Promise<Client> {
         if (this.initialized && this.client) {
             return this.client;
         }
 
         try {
             console.log(`Attempting to connect to Elasticsearch at ${host}`);
-            const newClient = new Client({ node: host });
+            const newClient = new Client({ 
+                node: host,
+                requestTimeout: 30000,
+                maxRetries: 5,
+                tls: {
+                    rejectUnauthorized: false 
+                }
+            });
 
             const pingResult = await newClient.ping();
             console.log('Elasticsearch ping result:', pingResult);
@@ -51,7 +58,6 @@ class ElasticsearchManager {
     // }
 }
 
-let initPromise: Promise<Client | null> | null = null;
 
 export const initEs = async ({
     ELASTICSEARCH_IS_ENABLED,
@@ -60,21 +66,17 @@ export const initEs = async ({
     ELASTICSEARCH_IS_ENABLED: boolean;
     ELASTICSEARCH_HOST?: string;
 }): Promise<Client | null> => {
-    if (!initPromise) {
-        initPromise = (async () => {
-            if (ELASTICSEARCH_IS_ENABLED) {
-                const manager = ElasticsearchManager.getInstance();
-                try {
-                    return await manager.connect(ELASTICSEARCH_HOST);
-                } catch (error) {
-                    console.error('Elasticsearch initialization failed:', error);
-                    throw error;
-                }
-            }
+    if (ELASTICSEARCH_IS_ENABLED) {
+        const manager = ElasticsearchManager.getInstance();
+        try {
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            return await manager.connect(ELASTICSEARCH_HOST);
+        } catch (error) {
+            console.error('Elasticsearch initialization failed:', error);
             return null;
-        })();
+        }
     }
-    return initPromise;
+    return null;
 }
 
 export const getEs = (): Client => {

@@ -1,5 +1,5 @@
 import { AuthFailureError, BadRequestError, NotFoundError } from "../core/error.response.js"
-import { createUser, findUser } from "../models/repo/user.repo.js"
+import { createUser, findEmailUser, findUser } from "../models/repo/user.repo.js"
 import crypto from 'crypto'
 import keyTokenService from "./keyToken.service.js"
 import { convertToObjectId, getInfo } from "../utils/index.js"
@@ -31,6 +31,11 @@ class AccessService {
                 throw new BadRequestError('Error: Account already registered!')
             }
 
+            const existEmailUser = await findEmailUser({ usr_email })
+            if (existEmailUser) {
+                throw new BadRequestError('Error: This email already registered!')
+            }
+
             const newUser = await createUser({
                 usr_username,
                 usr_fullname,
@@ -40,6 +45,13 @@ class AccessService {
             })
 
             if (newUser) {
+                logger.log('Signup success', {
+                    context: 'USER_REGISTRATION_SUCCESS',
+                    metadata: {
+                        username: usr_username
+                    }
+                });
+
                 const publicKey = crypto.randomBytes(64).toString('hex');
                 const privateKey = crypto.randomBytes(64).toString('hex');
 

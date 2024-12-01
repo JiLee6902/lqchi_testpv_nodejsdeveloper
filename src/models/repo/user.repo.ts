@@ -53,6 +53,18 @@ const findUser = async ({
     }
 }
 
+const findEmailUser = async ({
+    usr_email
+}: { usr_email: string }): Promise<Record<string, any> | null> => {
+    try {
+        const user = await userModel.findOne({usr_email}).lean()
+        return user ?? null
+    } catch (error) {
+        console.error('Error finding user:', error);
+        return null;
+    }
+}
+
 /**
  * @desc: tìm user by usr_id
  * @param param0 - user_id
@@ -74,5 +86,6 @@ const findUserById = async ({
 export {
     createUser,
     findUser,
-    findUserById
+    findUserById,
+    findEmailUser
 }

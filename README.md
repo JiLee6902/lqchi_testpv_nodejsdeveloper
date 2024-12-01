@@ -68,6 +68,7 @@ docker-compose up --build
 
 ## Cấu Trúc Dự Án
 
+- **/**: có sử dung singleton design pattern
 - **/models**: Chứa các mô hình dữ liệu (user, key token).
 - **/repo**: Chứa các dịch vụ xử lý nghiệp vụ thường xuyên.
 - **/services**: Chứa các dịch vụ xử lý nghiệp vụ (AccessService, UserService).

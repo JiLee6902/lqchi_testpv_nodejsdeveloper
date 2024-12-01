@@ -17,38 +17,46 @@ class ElasticSearchService {
     private logIndex = 'logs'
     private static instance: ElasticSearchService | null = null;
 
-    private constructor() {}
+    private constructor() { }
 
     private async initialize(): Promise<void> {
         try {
+            console.log('Attempting to get Elasticsearch client...');
             this.client = getEs();
+            console.log('Elasticsearch client obtained successfully');
+            
             await this.createLogIndex();
         } catch (error) {
-            console.error('Elasticsearch index creation error:', error);
-            throw new BadRequestError('Failed to create Elasticsearch index');
+            console.error('Elasticsearch initialization detailed error:', {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : 'No stack trace'
+            });
+            
+            console.warn('Elasticsearch initialization encountered an issue');
         }
     }
 
     public static async init(): Promise<ElasticSearchService> {
         if (!this.instance) {
             this.instance = new ElasticSearchService();
-            try {
-                await this.instance.initialize();
-            } catch (error) {
-                console.error('Elasticsearch service initialization error:', error);
-                throw new BadRequestError('Elasticsearch service initialization failed');
-            }
+            await this.instance.initialize();
         }
         return this.instance;
     }
 
     private async createIndex(indexName: string, body: object): Promise<void> {
-        const indexExists = await this.client?.indices.exists({ index: indexName });
-        if (!indexExists) {
-            await this.client?.indices.create({
-                index: indexName,
-                body
-            });
+        try {
+            const indexExists = await this.client?.indices.exists({ index: indexName });
+            if (!indexExists) {
+                console.log(`Creating index: ${indexName}`);
+                await this.client?.indices.create({
+                    index: indexName,
+                    body
+                });
+                console.log(`Index ${indexName} created successfully`);
+            }
+        } catch (error) {
+            console.error(`Error creating index ${indexName}:`, error);
         }
     }
 
@@ -82,7 +90,7 @@ class ElasticSearchService {
                 document: processedLogData
             });
         } catch (error) {
-            throw new BadRequestError('Failed to add infomation of log!');
+            console.error('Failed to add log:', error);
         }
     }
 }

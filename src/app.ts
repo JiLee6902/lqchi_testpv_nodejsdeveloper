@@ -29,7 +29,11 @@ try {
     await initEs({
         ELASTICSEARCH_IS_ENABLED: true
     });
-    await ElasticSearchService.init();
+    try {
+        await ElasticSearchService.init();
+    } catch (initError) {
+        console.warn('Elasticsearch service initialization warning:', initError);
+    }
 } catch (error) {
     console.error('Failed to initialize Elasticsearch:', error);
 }
