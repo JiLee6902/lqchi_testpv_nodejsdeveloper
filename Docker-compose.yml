@@ -11,12 +11,17 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_MAX_POOL_SIZE=${MONGODB_MAX_POOL_SIZE}
+      - MONGODB_SERVER_TIMEOUT=${MONGODB_SERVER_TIMEOUT}
+      - MONGODB_HEARTBEAT_FREQUENCY=${MONGODB_HEARTBEAT_FREQUENCY}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
       - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
       - AWS_BUCKET_SECRET_KEY=${AWS_BUCKET_SECRET_KEY}
       - AWS_BUCKET_CLOUDFRONT_URL=${AWS_BUCKET_CLOUDFRONT_URL}
+    restart: unless-stopped
 
-  # MongoDB Service
   mongodb:
     image: mongo:latest
     ports:
@@ -27,14 +32,14 @@ services:
       - MONGO_INITDB_DATABASE=Manage
       - MONGO_INITDB_ROOT_USERNAME=jilee
       - MONGO_INITDB_ROOT_PASSWORD=jilee
+    restart: unless-stopped
 
-  # Redis Service
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    restart: unless-stopped
 
-  # Elasticsearch Service
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     environment:
@@ -45,6 +50,7 @@ services:
       - "9300:9300"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    restart: unless-stopped
 
 volumes:
   mongodb_data:
