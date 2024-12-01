@@ -38,6 +38,9 @@ class UserService {
         userId: Types.ObjectId,
         updateDataUser: Record<string, any>
     }) {
+        const user = await findUserById({ user_id: userId })
+        if (!user) throw new AuthFailureError("This account not exist!!");
+
         const { usr_password, ...otherData } = updateDataUser || {}
         if (usr_password) {
             throw new BadRequestError('Update information not include password!')
@@ -65,6 +68,8 @@ class UserService {
     }: {
         userId: Types.ObjectId,
     }) {
+        const user = await findUserById({ user_id: userId })
+        if (!user) throw new AuthFailureError("This account not exist!!");
         const delUser = await userModel.deleteOne({ _id: userId })
 
         if (delUser.deletedCount === 0) {

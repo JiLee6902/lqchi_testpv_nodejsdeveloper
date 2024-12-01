@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  prod:
+  nodejsapp:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     ports:
-      - "80:3000"
+      - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=3000
       - MONGODB_URI=${MONGODB_URI}
       - MONGODB_MAX_POOL_SIZE=${MONGODB_MAX_POOL_SIZE}
@@ -21,6 +21,8 @@ services:
       - AWS_BUCKET_SECRET_KEY=${AWS_BUCKET_SECRET_KEY}
       - AWS_BUCKET_CLOUDFRONT_URL=${AWS_BUCKET_CLOUDFRONT_URL}
     restart: unless-stopped
+    networks:
+      - app_network
 
   mongodb:
     image: mongo:latest
@@ -33,12 +35,16 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=jilee
       - MONGO_INITDB_ROOT_PASSWORD=jilee
     restart: unless-stopped
+    networks:
+      - app_network
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
     restart: unless-stopped
+    networks:
+      - app_network
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -51,7 +57,14 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     restart: unless-stopped
+    networks:
+      - app_network
 
 volumes:
   mongodb_data:
   elasticsearch_data:
+
+
+networks:
+  app_network:
+    driver: bridge

@@ -8,16 +8,12 @@ import { readUser } from '../../middlewares/cache.middleware.js'
 import { uploadMemory } from '../../configs/multer.config.js'
 
 const router = express.Router()
-
 router.get('/', readUser, asyncHandler(UserController.findOneUser))
-router.use(authentication)
-
-
-router.patch('/:userId', uploadMemory.single('avatar'), asyncHandler(UserController.updateUser))
-router.delete('/:userId', asyncHandler(UserController.deleteUser))
-router.patch('/:userId/status', asyncHandler(UserController.updateUserStatus))
-router.post('/request-email-token', asyncHandler(UserController.requestEmailToken))
-router.post('/change-password', asyncHandler(UserController.changePassword))
+router.patch('/:userId',authentication, uploadMemory.single('avatar'), asyncHandler(UserController.updateUser))
+router.delete('/:userId', authentication, asyncHandler(UserController.deleteUser))
+router.patch('/:userId/status', authentication, asyncHandler(UserController.updateUserStatus))
+router.post('/request-email-token', authentication, asyncHandler(UserController.requestEmailToken))
+router.post('/change-password', authentication, asyncHandler(UserController.changePassword))
 
 
 export default router;

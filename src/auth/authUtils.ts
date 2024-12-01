@@ -2,7 +2,7 @@
 
 import jwt from 'jsonwebtoken';
 import asyncHandler from '../helpers/asyncHandler.js';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { AuthFailureError, BadRequestError, NotFoundError } from '../core/error.response.js';
 import keyTokenService from '../services/keyToken.service.js';
 import { convertToObjectId } from '../utils/index.js';
@@ -10,6 +10,7 @@ import { KeyToken, IKeyToken } from '../models/keytoken.model.js';
 import userModel from '../models/user.model.js';
 import { Types } from 'mongoose';
 import logger from '../logger/logger.js';
+
 
 declare global {
     namespace Express {
@@ -77,7 +78,7 @@ const getTokenFromHeader = (token: string | string[] | undefined): string => {
     return Array.isArray(token) ? token[0] : token;
 };
 
-const authentication = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+const authentication: RequestHandler = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = getUserId(req.headers[HEADER.CLIENT_ID]);
         const userValid = await userModel.findById(userId)

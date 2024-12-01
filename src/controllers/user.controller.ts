@@ -2,7 +2,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { CREATED, SuccessResponse } from "../core/success.response.js"
-import { AuthFailureError } from '../core/error.response.js';
+import { AuthFailureError, BadRequestError } from '../core/error.response.js';
 import UserService from '../services/user.service.js';
 import { convertToObjectId } from '../utils/index.js';
 import { Types } from 'mongoose';
@@ -16,6 +16,10 @@ class UserController {
         if (!user_id || typeof user_id !== 'string') {
             throw new Error('Invalid user_id!');
         }
+        if (!Types.ObjectId.isValid(user_id)) {
+            throw new BadRequestError('Invalid format!');
+        }
+
         new SuccessResponse({
             message: 'Get user success!',
             metadata: await UserService.findUserByUserId({
@@ -28,6 +32,10 @@ class UserController {
         const userId = req.params.userId;
         if (!userId) {
             throw new AuthFailureError('Require Id!');
+        }
+        
+        if (!Types.ObjectId.isValid(userId)) {
+            throw new BadRequestError('Invalid format!');
         }
 
         let avatarUrl = '';
@@ -55,6 +63,10 @@ class UserController {
         if (!userId) {
             throw new AuthFailureError('Require Id!');
         }
+        if (!Types.ObjectId.isValid(userId)) {
+            throw new BadRequestError('Invalid format!');
+        }
+        
         new SuccessResponse({
             message: 'Delete user account successfully!',
             metadata: await UserService.deleteUser({ userId: new Types.ObjectId(userId) })
